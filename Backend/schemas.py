@@ -17,4 +17,4 @@ class TaskOut(BaseModel):
     completed: bool
 
     class Config:
-        orm_mode = True  # allows SQLAlchemy objects to be returned directly
+        orm_mode = True
