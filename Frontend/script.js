@@ -1,23 +1,42 @@
 const API_URL = "http://127.0.0.1:8000/tasks";
+let tasks = [];
+let filter = "all";
+
+const themeBtn = document.getElementById("toggle-theme");
+themeBtn.addEventListener("click", () => {
+  document.body.classList.toggle("dark-mode");
+  themeBtn.textContent = document.body.classList.contains("dark-mode") ? "Light Mode" : "Dark Mode";
+});
 
 // Load all tasks
 async function loadTasks() {
   const res = await fetch(API_URL);
-  const tasks = await res.json();
+  tasks = await res.json();
+  renderTasks();
+}
+
+function renderTasks() {
   const ul = document.getElementById("task-list");
   ul.innerHTML = "";
-  tasks.forEach(task => {
+
+  let filteredTasks = tasks;
+  if (filter === true) filteredTasks = tasks.filter(t => t.completed);
+  else if (filter === false) filteredTasks = tasks.filter(t => !t.completed);
+
+  filteredTasks.forEach(task => {
     const li = document.createElement("li");
+    li.className = "task-card";
     li.innerHTML = `
-      <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleTask(${task.id}, this.checked)">
-      ${task.title}
-      <button onclick="deleteTask(${task.id})">Delete</button>
+      <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleTask(${task.id})">
+      <span class="task-title ${task.completed ? "task-completed" : ""}">${task.title}</span>
+      <button class="edit-btn" onclick="editTask(${task.id})">Edit</button>
+      <button class="delete-btn" onclick="deleteTask(${task.id})">Delete</button>
     `;
     ul.appendChild(li);
   });
 }
 
-// Add a new task
+// Add new task
 async function addTask() {
   const input = document.getElementById("new-task");
   const title = input.value.trim();
@@ -32,20 +51,76 @@ async function addTask() {
 }
 
 // Toggle completed status
-async function toggleTask(id, completed) {
+async function toggleTask(id) {
+  const task = tasks.find(t => t.id === id);
   await fetch(`${API_URL}/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title: document.querySelector(`#task-list li:nth-child(${id})`).innerText.split("Delete")[0].trim(), completed })
+    body: JSON.stringify({ title: task.title, completed: !task.completed })
   });
   loadTasks();
 }
 
-// Delete a task
+// Delete task
 async function deleteTask(id) {
   await fetch(`${API_URL}/${id}`, { method: "DELETE" });
   loadTasks();
 }
 
+// Edit task
+function editTask(id) {
+  const task = tasks.find(t => t.id === id);
+  const newTitle = prompt("Edit task:", task.title);
+  if (newTitle === null) return;
+  fetch(`${API_URL}/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title: newTitle, completed: task.completed })
+  }).then(loadTasks);
+}
+
+// Filter tasks
+function filterTasks(f) {
+  filter = f;
+  renderTasks();
+}
+
+// Search tasks
+function searchTasks() {
+  const query = document.getElementById("search-task").value.toLowerCase();
+  const ul = document.getElementById("task-list");
+  ul.innerHTML = "";
+  tasks.filter(t => t.title.toLowerCase().includes(query))
+       .forEach(task => {
+         const li = document.createElement("li");
+         li.className = "task-card";
+         li.innerHTML = `
+          <input type="checkbox" ${task.completed ? "checked" : ""} onchange="toggleTask(${task.id})">
+          <span class="task-title ${task.completed ? "task-completed" : ""}">${task.title}</span>
+          <button class="edit-btn" onclick="editTask(${task.id})">Edit</button>
+          <button class="delete-btn" onclick="deleteTask(${task.id})">Delete</button>
+         `;
+         ul.appendChild(li);
+       });
+}
+
+// Clear completed tasks
+async function clearCompleted() {
+  const completedTasks = tasks.filter(t => t.completed);
+  for (const t of completedTasks) {
+    await fetch(`${API_URL}/${t.id}`, { method: "DELETE" });
+  }
+  loadTasks();
+}
+
+// Clear all tasks
+async function clearAll() {
+  for (const t of tasks) {
+    await fetch(`${API_URL}/${t.id}`, { method: "DELETE" });
+  }
+  loadTasks();
+}
+
 // Initialize
 loadTasks();
+
