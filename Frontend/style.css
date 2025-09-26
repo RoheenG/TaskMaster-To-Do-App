@@ -1,0 +1,64 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 50px auto; /* centers the content */
+    text-align: center; /* center titles and inputs */
+  }
+  
+  h1 {
+    text-align: center;
+    color: #2c3e50; /* title color */
+  }
+  
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 20px;
+  }
+  
+  li {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* centers items horizontally */
+    gap: 10px; /* spacing between checkbox, text, button */
+  }
+  
+  input[type="text"] {
+    width: 60%;  /* input box width */
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: left;
+    display: inline-block;
+  }
+  
+  button.add-task {
+    padding: 8px 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #2ecc71; /* green button */
+    color: white;
+    cursor: pointer;
+  }
+  
+  button.add-task:hover {
+    background-color: #27ae60; /* darker green on hover */
+  }
+  
+  button.delete-task {
+    padding: 8px 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #e74c3c; /* red button */
+    color: white;
+    cursor: pointer;
+  }
+  
+  button.delete-task:hover {
+    background-color: #c0392b; /* darker red on hover */
+  }
+  
